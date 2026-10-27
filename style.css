@@ -17,6 +17,7 @@
 * { box-sizing: border-box; }
 
 body {
+  isolation: isolate;
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
@@ -24,6 +25,16 @@ body {
   background:
     radial-gradient(ellipse at 82% 0%, rgb(91 39 22 / 14%), transparent 34rem),
     var(--background);
+}
+
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background: url("wallpaper/Wallpaler_01.jpg") center / cover no-repeat;
+  opacity: .2;
+  pointer-events: none;
+  content: "";
 }
 
 button, input, select, textarea { font: inherit; }
@@ -35,9 +46,6 @@ button { color: inherit; }
   min-height: 100vh;
   padding: 24px;
   place-items: center;
-  background:
-    linear-gradient(135deg, rgb(15 14 13 / 95%), rgb(31 20 16 / 87%)),
-    radial-gradient(ellipse at 50% 20%, #5b2b1d, transparent 60%);
 }
 
 .auth-card {
