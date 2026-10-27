@@ -184,7 +184,20 @@
                 <button id="refresh-roster" class="button button--secondary" type="button">Odśwież</button>
               </div>
               <p id="roster-message" class="notice" role="status" aria-live="polite"></p>
-              <div id="roster-list" class="roster-list" aria-live="polite"></div>
+              <div class="roster-table-wrap">
+                <table class="roster-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Nick</th>
+                      <th scope="col">Rasa</th>
+                      <th scope="col">Klasa</th>
+                      <th scope="col">Rola</th>
+                      <th scope="col">Profesja</th>
+                    </tr>
+                  </thead>
+                  <tbody id="roster-list" aria-live="polite"></tbody>
+                </table>
+              </div>
             </section>
           </article>
         </section>

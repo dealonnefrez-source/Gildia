@@ -243,12 +243,17 @@ input::placeholder, textarea::placeholder { color: #746d64; }
 .roster-section { margin-top: 30px; padding-top: 22px; border-top: 1px solid #342e26; }
 .roster-section .events-heading { margin-bottom: 12px; }
 .roster-section .notice { margin-bottom: 10px; }
-.roster-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 12px; }
-.roster-card { padding: 15px; border: 1px solid #393127; border-left: 2px solid var(--gold); background: #1a1815; }
-.roster-card__name { margin: 0 0 10px; color: #f0e2cd; font-family: "Cinzel", serif; font-size: 15px; overflow-wrap: anywhere; }
-.roster-card__details { display: grid; gap: 5px; }
-.roster-card__details p { margin: 0; color: #b5ab9e; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
-.roster-card__label { color: #d1a85f; }
+.roster-table-wrap { overflow-x: auto; border: 1px solid #393127; }
+.roster-table { width: 100%; min-width: 610px; border-collapse: collapse; background: #191715; font-size: 12px; text-align: left; }
+.roster-table th { padding: 10px 13px; border-bottom: 1px solid #55432b; color: #e5c080; background: #211e1a; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.roster-table td { padding: 9px 13px; border-bottom: 1px solid #302a23; color: #bdb3a6; white-space: nowrap; }
+.roster-table tbody tr:nth-child(even) { background: #201d19; }
+.roster-table tbody tr:last-child td { border-bottom: 0; }
+.roster-table tbody tr:hover { border-left: 2px solid var(--gold); background: #302519; }
+.roster-table tbody tr:hover td { color: #eee2d0; }
+.roster-table tbody tr:hover .roster-row__name { color: var(--gold-bright); }
+.roster-table .roster-row__name { color: #e3d4bf; font-weight: 700; }
+.roster-table .roster-empty { padding: 18px; color: var(--muted); text-align: center; }
 .calendar-toolbar { display: flex; margin: 18px 0 10px; align-items: center; justify-content: space-between; gap: 12px; }
 .calendar-month { display: flex; align-items: center; gap: 13px; }
 .calendar-month h3 { min-width: 190px; margin: 0; color: #f0e2cd; font-family: "Cinzel", serif; font-size: 19px; text-align: center; }
@@ -326,7 +331,6 @@ input::placeholder, textarea::placeholder { color: #746d64; }
   .calendar-month h3 { min-width: 145px; font-size: 16px; }
   .calendar-toolbar { align-items: flex-start; }
   .event-card__heading { align-items: flex-start; flex-direction: column; gap: 5px; }
-  .roster-list { grid-template-columns: 1fr; }
   .attendee { max-width: 100%; }
   .field--wide, .form-actions { grid-column: auto; }
   .form-actions { flex-wrap: wrap; }

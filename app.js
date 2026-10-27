@@ -83,32 +83,19 @@ async function loadProfile() {
   setMessage(profileMessage, "");
 }
 
-function createRosterCard(profile) {
-  const card = document.createElement("article");
-  card.className = "roster-card";
+function createRosterRow(profile) {
+  const row = document.createElement("tr");
+  row.className = "roster-row";
 
-  const name = document.createElement("h4");
-  name.className = "roster-card__name";
-  name.textContent = profile.character_name;
+  [profile.character_name, profile.race, profile.character_class, profile.role, profile.profession]
+    .forEach((value, index) => {
+      const cell = document.createElement("td");
+      if (index === 0) cell.className = "roster-row__name";
+      cell.textContent = value || "—";
+      row.append(cell);
+    });
 
-  const details = document.createElement("div");
-  details.className = "roster-card__details";
-  [
-    ["Rasa", profile.race],
-    ["Klasa", profile.character_class],
-    ["Rola", profile.role],
-    ["Profesja", profile.profession],
-  ].forEach(([label, value]) => {
-    const item = document.createElement("p");
-    const itemLabel = document.createElement("span");
-    itemLabel.className = "roster-card__label";
-    itemLabel.textContent = `${label}: `;
-    item.append(itemLabel, document.createTextNode(value || "—"));
-    details.append(item);
-  });
-
-  card.append(name, details);
-  return card;
+  return row;
 }
 
 async function loadRoster() {
@@ -126,12 +113,15 @@ async function loadRoster() {
   }
 
   if (!data?.length) {
-    const emptyState = document.createElement("p");
-    emptyState.className = "empty-state";
-    emptyState.textContent = "Nie ma jeszcze uzupełnionych kart postaci.";
-    rosterList.replaceChildren(emptyState);
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.className = "roster-empty";
+    cell.colSpan = 5;
+    cell.textContent = "Nie ma jeszcze uzupełnionych kart postaci.";
+    row.append(cell);
+    rosterList.replaceChildren(row);
   } else {
-    rosterList.replaceChildren(...data.map(createRosterCard));
+    rosterList.replaceChildren(...data.map(createRosterRow));
   }
   setMessage(rosterMessage, "");
 }
