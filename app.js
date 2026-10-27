@@ -562,7 +562,7 @@ function activateView(viewId) {
   });
 
   if (viewId === "calendar-view") loadEvents();
-  if (viewId === "info-view") loadRoster();
+  if (viewId === "members-view") loadRoster();
 }
 
 authModeToggle.addEventListener("click", () => setAuthMode(!isRegisterMode));
@@ -631,7 +631,7 @@ profileForm.addEventListener("submit", async (event) => {
     return;
   }
   setMessage(profileMessage, "Karta postaci została zapisana.", "success");
-  if (document.querySelector("#info-view").classList.contains("is-active")) loadRoster();
+  if (document.querySelector("#members-view").classList.contains("is-active")) loadRoster();
 });
 
 eventForm.addEventListener("invalid", (event) => {

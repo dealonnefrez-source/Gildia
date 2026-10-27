@@ -54,6 +54,9 @@
         <button class="nav-link" type="button" data-view="info-view">
           <span aria-hidden="true">▤</span> Info o gildii
         </button>
+        <button class="nav-link" type="button" data-view="members-view">
+          <span aria-hidden="true">♟♟</span> Członkowie
+        </button>
         <button class="nav-link" type="button" data-view="calendar-view">
           <span aria-hidden="true">◷</span> Kalendarz
         </button>
@@ -188,7 +191,7 @@
             </div>
           </div>
           <article class="panel info-copy">
-            <h3>Braterstwo ponad wszystko</h3>
+            <h3>Braterstwo</h3>
             <p>Nazwa Gildii to gildia Hordy zbudowana na wzajemnym szacunku, współpracy i dobrej zabawie. Każdy członek gildii ma prawo do głosu i może liczyć na wsparcie pozostałych.</p>
             <h3>Zasady gildii</h3>
             <ul>
@@ -197,11 +200,18 @@
               <li>Informuj gildię o swojej obecności i zapisuj się na wydarzenia w kalendarzu.</li>
               <li>Pomagaj członkom gildii i wspólnie buduj przyjazną społeczność.</li>
             </ul>
-            <section class="roster-section" aria-labelledby="roster-title">
-              <div class="events-heading">
-                <h3 id="roster-title">Członkowie gildii</h3>
-                <button id="refresh-roster" class="button button--secondary" type="button">Odśwież</button>
-              </div>
+          </article>
+        </section>
+
+        <section id="members-view" class="view" aria-labelledby="roster-title" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Razem dla Hordy</p>
+              <h2 id="roster-title">Członkowie gildii</h2>
+            </div>
+            <button id="refresh-roster" class="button button--secondary" type="button">Odśwież</button>
+          </div>
+          <div class="panel roster-section">
               <p id="roster-message" class="notice" role="status" aria-live="polite"></p>
               <div class="roster-table-wrap">
                 <table class="roster-table">
@@ -217,8 +227,7 @@
                   <tbody id="roster-list" aria-live="polite"></tbody>
                 </table>
               </div>
-            </section>
-          </article>
+          </div>
         </section>
 
         <section id="calendar-view" class="view" aria-labelledby="calendar-title" hidden>
