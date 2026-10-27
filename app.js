@@ -247,94 +247,77 @@ function renderCalendar() {
   calendarDays.replaceChildren(fragment);
 }
 
-function createEventCard(event) {
-  const card = document.createElement("article");
-  card.className = "event-card";
+function createEventPlayer(profile, userId) {
+  const player = document.createElement("span");
+  player.className = "attendee";
+  const name = document.createElement("span");
+  name.className = "attendee__name";
+  name.textContent = profile?.imie || `Brak karty postaci (${userId})`;
+  const characterClass = document.createElement("span");
+  characterClass.className = "attendee__class";
+  const source = CLASS_ICONS.get(profile?.klasa);
+  if (source) {
+    const icon = document.createElement("img");
+    icon.className = "class-icon";
+    icon.src = source;
+    icon.alt = "";
+    icon.setAttribute("aria-hidden", "true");
+    characterClass.append(icon);
+  }
+  characterClass.append(document.createTextNode(profile?.klasa || "Klasa nieustawiona"));
+  const role = document.createElement("span");
+  role.className = "attendee__role";
+  role.textContent = profile?.rola || "Rola nieustawiona";
+  player.append(name, document.createTextNode(" - "), characterClass, document.createTextNode(" - "), role);
+  return player;
+}
 
-  const eventTime = new Date(event.starts_at).toLocaleTimeString("pl-PL", {
+function createEventCard(event) {
+  const card = document.querySelector("#event-card-template").content.firstElementChild.cloneNode(true);
+  card.querySelector("h4").textContent = event.title;
+  const time = card.querySelector("time");
+  time.dateTime = event.starts_at;
+  time.textContent = new Date(event.starts_at).toLocaleTimeString("pl-PL", {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const heading = document.createElement("div");
-  heading.className = "event-card__heading";
+  const description = card.querySelector(".event-description");
+  description.textContent = event.description ?? "";
+  description.hidden = !event.description;
+  card.querySelector(".event-organizer__profile").append(createEventPlayer(event.organizer, event.created_by));
 
-  const title = document.createElement("h4");
-  title.textContent = event.title;
-  const time = document.createElement("time");
-  time.className = "event-meta";
-  time.dateTime = event.starts_at;
-  time.textContent = eventTime;
-  heading.append(title, time);
-  card.append(heading);
-
-  if (event.description) {
-    const description = document.createElement("p");
-    description.className = "event-description";
-    description.textContent = event.description;
-    card.append(description);
-  }
-
-  const attendees = document.createElement("p");
-  attendees.className = "event-attendees";
-  const attendeeLabel = document.createElement("strong");
-  attendeeLabel.textContent = "Zapisani: ";
-  attendees.append(attendeeLabel);
-  const attendeeList = document.createElement("span");
-  attendeeList.className = "event-attendees__list";
+  const attendeeList = card.querySelector(".event-attendees__list");
   const signups = event.event_signups ?? [];
   if (signups.length) {
     signups.forEach((signup) => {
-      const attendee = document.createElement("span");
-      attendee.className = "attendee";
-      const characterName = document.createElement("span");
-      characterName.className = "attendee__name";
-      characterName.textContent = signup.character_name || signup.user_id;
-      const characterClass = document.createElement("span");
-      const classToken = (signup.character_class ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "");
-      characterClass.className = `attendee__class${classToken ? ` attendee__class--${classToken}` : ""}`;
-      characterClass.textContent = signup.character_class || "Klasa nieustawiona";
-      const role = document.createElement("span");
-      const roleToken = (signup.role ?? "").toLowerCase().replace(/[^a-z0-9-]/g, "");
-      role.className = `attendee__role${roleToken ? ` attendee__role--${roleToken}` : ""}`;
-      role.textContent = signup.role || "Rola nieustawiona";
-      attendee.append(characterName, characterClass, role);
-      attendeeList.append(attendee);
+      const item = document.createElement("li");
+      item.append(createEventPlayer(signup.profile, signup.user_id));
+      attendeeList.append(item);
     });
   } else {
-    attendeeList.textContent = "Brak zapisanych osób";
+    const item = document.createElement("li");
+    item.textContent = "Brak zapisanych osób";
+    attendeeList.append(item);
   }
-  attendees.append(attendeeList);
-  card.append(attendees);
 
-  const signupButton = document.createElement("button");
-  signupButton.className = "button button--secondary";
-  signupButton.type = "button";
-  signupButton.textContent = "Zapisz się";
-  signupButton.addEventListener("click", () => signUpForEvent(event.id, signupButton));
-  if (event.event_signups?.some((signup) => signup.user_id === currentUser.id)) {
-    signupButton.disabled = true;
-    signupButton.textContent = "Już zapisano";
-  }
-  card.append(signupButton);
+  const isSignedUp = signups.some((signup) => signup.user_id === currentUser?.id);
+  const signupButton = card.querySelector(".event-signup");
+  signupButton.className = `button event-signup ${isSignedUp ? "button--danger" : "button--secondary"}`;
+  signupButton.textContent = isSignedUp ? "Wypisz się" : "Zapisz się";
+  signupButton.addEventListener("click", () => {
+    if (isSignedUp) {
+      leaveEvent(event.id, signupButton);
+    } else {
+      signUpForEvent(event.id, signupButton);
+    }
+  });
 
-  if (event.created_by === currentUser.id) {
-    const ownerActions = document.createElement("div");
-    ownerActions.className = "event-owner-actions";
-
-    const editButton = document.createElement("button");
-    editButton.className = "button button--secondary";
-    editButton.type = "button";
-    editButton.textContent = "Edytuj";
+  if (event.created_by === currentUser?.id) {
+    card.querySelector(".event-owner-actions").hidden = false;
+    const editButton = card.querySelector(".event-edit");
     editButton.addEventListener("click", () => startEventEdit(event));
-
-    const deleteButton = document.createElement("button");
-    deleteButton.className = "button button--danger";
-    deleteButton.type = "button";
-    deleteButton.textContent = "Usuń";
+    const deleteButton = card.querySelector(".event-delete");
     deleteButton.addEventListener("click", () => deleteEvent(event, deleteButton));
-
-    ownerActions.append(editButton, deleteButton);
-    card.append(ownerActions);
   }
 
   return card;
@@ -382,7 +365,6 @@ async function loadEvents() {
   const cutoffTime = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const cutoff = new Date(cutoffTime);
 
-  // Pobierz wydarzenia oraz relację zapisów dla zalogowanych użytkowników.
   const { data, error } = await supabaseClient
     .from("events")
     .select("id, title, starts_at, description, created_by, event_signups(user_id)")
@@ -395,24 +377,27 @@ async function loadEvents() {
   }
 
   const events = (data ?? []).filter((event) => new Date(event.starts_at).getTime() >= cutoffTime);
-  const userIds = [...new Set(events.flatMap((event) => (event.event_signups ?? []).map((signup) => signup.user_id)))];
+  const userIds = [...new Set(events.flatMap((event) => [
+    event.created_by,
+    ...(event.event_signups ?? []).map((signup) => signup.user_id),
+  ]))];
   if (userIds.length) {
-    // Pobierz nazwy postaci zapisanych graczy; identyfikator pozostaje awaryjną etykietą.
     const { data: profiles, error: profilesError } = await supabaseClient
       .from("profiles")
-      .select("user_id, character_name:imie, character_class:klasa, role:rola")
+      .select(`user_id, ${PROFILE_FIELDS}`)
       .in("user_id", userIds);
 
     if (profilesError) {
-      setMessage(calendarMessage, `Nie udało się pobrać zapisanych postaci: ${profilesError.message}`, "error");
+      setMessage(calendarMessage, `Nie udało się pobrać organizatorów i zapisanych postaci: ${profilesError.message}`, "error");
       return;
     }
 
     const profilesByUserId = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
     events.forEach((event) => {
+      event.organizer = profilesByUserId.get(event.created_by);
       event.event_signups = (event.event_signups ?? []).map((signup) => ({
         ...signup,
-        ...(profilesByUserId.get(signup.user_id) ?? {}),
+        profile: profilesByUserId.get(signup.user_id),
       }));
     });
   }
@@ -477,6 +462,27 @@ async function deleteEvent(event, button) {
   if (editingEventId === event.id) resetEventEdit();
   setMessage(calendarMessage, "Wydarzenie zostało usunięte.", "success");
   await loadEvents();
+  button.disabled = false;
+}
+
+async function leaveEvent(eventId, button) {
+  if (!currentUser) return;
+
+  button.disabled = true;
+  const { error } = await supabaseClient
+    .from("event_signups")
+    .delete()
+    .eq("event_id", eventId)
+    .eq("user_id", currentUser.id);
+
+  if (error) {
+    button.disabled = false;
+    setMessage(calendarMessage, `Nie udało się wypisać z wydarzenia: ${error.message}`, "error");
+    return;
+  }
+
+  await loadEvents();
+  button.disabled = false;
 }
 
 async function signUpForEvent(eventId, button) {
@@ -497,6 +503,7 @@ async function signUpForEvent(eventId, button) {
   }
 
   await loadEvents();
+  button.disabled = false;
 }
 
 function activateView(viewId) {

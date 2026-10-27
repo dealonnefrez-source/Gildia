@@ -249,6 +249,28 @@
               <h3 id="selected-day-title">Wydarzenia w wybranym dniu</h3>
             </div>
             <div id="events-list" class="events-list" aria-live="polite"></div>
+            <template id="event-card-template">
+              <article class="event-card">
+                <div class="event-card__heading">
+                  <h4></h4>
+                  <time class="event-meta"></time>
+                </div>
+                <p class="event-description"></p>
+                <section class="event-attendees event-organizer" aria-label="Organizator">
+                  <strong>Organizator:</strong>
+                  <div class="event-organizer__profile"></div>
+                </section>
+                <section class="event-attendees" aria-label="Zapisani gracze">
+                  <strong>Zapisani:</strong>
+                  <ul class="event-attendees__list"></ul>
+                </section>
+                <button class="button button--secondary event-signup" type="button">Zapisz się</button>
+                <div class="event-owner-actions" hidden>
+                  <button class="button button--secondary event-edit" type="button">Edytuj</button>
+                  <button class="button button--danger event-delete" type="button">Usuń</button>
+                </div>
+              </article>
+            </template>
           </section>
 
           <div class="panel calendar-create">

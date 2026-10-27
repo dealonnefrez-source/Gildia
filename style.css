@@ -298,14 +298,17 @@ input::placeholder, textarea::placeholder { color: #746d64; }
 .event-description { margin: 0 0 14px; color: #b5ab9e; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
 .event-attendees { display: grid; margin: 0 0 13px; padding-top: 11px; border-top: 1px solid #302a22; color: #a9a094; font-size: 12px; line-height: 1.7; gap: 7px; }
 .event-attendees strong { color: #d0c3b1; }
-.event-attendees__list { display: flex; flex-wrap: wrap; gap: 7px; }
-.attendee { display: inline-flex; overflow: hidden; border: 1px solid #393127; border-radius: 2px; background: #211e1a; align-items: center; }
+.event-attendees__list { display: flex; margin: 0; padding: 0; list-style: none; flex-direction: column; gap: 7px; }
+.attendee { display: inline-flex; max-width: 100%; padding: 3px; border: 1px solid #393127; border-radius: 2px; background: #211e1a; align-items: center; flex-wrap: wrap; }
 .attendee__name, .attendee__class, .attendee__role { padding: 4px 7px; }
-.attendee__name { color: #e8dfd1; font-weight: 700; }
-.attendee__class { border-left: 1px solid #393127; color: #c9ad7d; }
-.attendee__role { border-left: 1px solid #393127; color: #9fb88c; }
+.attendee__name { min-width: 0; color: #e8dfd1; font-weight: 700; overflow-wrap: anywhere; }
+.attendee__class { display: inline-flex; color: #c9ad7d; align-items: center; gap: 7px; }
+.attendee__class .class-icon { width: 26px; height: 26px; }
+.attendee__role { color: #9fb88c; }
 .event-card .button { min-height: 34px; padding: 7px 12px; }
+.event-signup.button--danger:hover { border-color: #b94b40; color: #ffd9d2; background: #56201e; }
 .event-owner-actions { display: flex; margin-top: 10px; padding-top: 10px; border-top: 1px solid #302a22; gap: 8px; }
+.event-owner-actions[hidden] { display: none; }
 .empty-state { padding: 20px; border: 1px dashed #393127; color: var(--muted); font-size: 13px; text-align: center; }
 .calendar-create { margin-top: 26px; }
 .calendar-create .form-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
