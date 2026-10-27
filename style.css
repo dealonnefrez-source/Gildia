@@ -231,7 +231,13 @@ input::placeholder, textarea::placeholder { color: #746d64; }
 .panel { padding: 22px; border: 1px solid #342e26; background: linear-gradient(135deg, #1c1a17, #171513); }
 .panel__intro { margin: 0 0 22px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 20px; }
-.field { display: grid; gap: 8px; }
+.field { display: grid; min-width: 0; gap: 8px; }
+.class-picker { display: flex; align-items: center; gap: 10px; }
+.class-picker select { min-width: 0; flex: 1; }
+.class-icon { width: 43px; height: 43px; flex: 0 0 auto; border: 1px solid #7d5b29; border-radius: 3px; background: #211613; object-fit: contain; box-shadow: 0 0 12px rgb(127 41 32 / 25%); }
+.class-icon[hidden] { display: none; }
+.profession-fields { display: grid; grid-template-columns: minmax(0, 1fr) 120px; align-items: end; gap: 10px; }
+.profession-level { border-color: #634331; color: var(--gold-bright); background: #1d1411; font-variant-numeric: tabular-nums; }
 .field--wide, .form-actions { grid-column: 1 / -1; }
 .form-actions { display: flex; align-items: center; gap: 14px; }
 .info-copy { color: #c3b9ab; font-size: 14px; line-height: 1.8; }
@@ -253,6 +259,8 @@ input::placeholder, textarea::placeholder { color: #746d64; }
 .roster-table tbody tr:hover td { color: #eee2d0; }
 .roster-table tbody tr:hover .roster-row__name { color: var(--gold-bright); }
 .roster-table .roster-row__name { color: #e3d4bf; font-weight: 700; }
+.roster-class { display: inline-flex; align-items: center; gap: 8px; }
+.roster-class .class-icon { width: 28px; height: 28px; }
 .roster-table .roster-empty { padding: 18px; color: var(--muted); text-align: center; }
 .calendar-toolbar { display: flex; margin: 18px 0 10px; align-items: center; justify-content: space-between; gap: 12px; }
 .calendar-month { display: flex; align-items: center; gap: 13px; }

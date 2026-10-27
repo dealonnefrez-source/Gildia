@@ -112,11 +112,11 @@
             <form id="profile-form" class="form-grid">
               <div class="field">
                 <label for="character-name">Imię postaci</label>
-                <input id="character-name" name="character_name" type="text" maxlength="40" required>
+                <input id="character-name" name="imie" type="text" maxlength="40" required>
               </div>
               <div class="field">
                 <label for="character-race">Rasa</label>
-                <select id="character-race" name="race" required>
+                <select id="character-race" name="rasa" required>
                   <option value="">Wybierz rasę</option>
                   <option>Ork</option>
                   <option>Undead</option>
@@ -127,31 +127,50 @@
               </div>
               <div class="field">
                 <label for="character-class">Klasa</label>
-                <select id="character-class" name="character_class" required>
-                  <option value="">Wybierz klasę</option>
-                  <option>Warrior</option>
-                  <option>Hunter</option>
-                  <option>Mage</option>
-                  <option>Warlock</option>
-                  <option>Shamman</option>
-                  <option>Priest</option>
-                  <option>Paladin</option>
-                  <option>Rodue</option>
-                  <option>Druid</option>
-                </select>
+                <div class="class-picker">
+                  <img id="character-class-icon" class="class-icon" alt="" aria-hidden="true" hidden>
+                  <select id="character-class" name="klasa" required>
+                    <option value="">Wybierz klasę</option>
+                    <option>Warrior</option>
+                    <option>Hunter</option>
+                    <option>Mage</option>
+                    <option>Warlock</option>
+                    <option>Shaman</option>
+                    <option>Priest</option>
+                    <option>Paladin</option>
+                    <option>Rogue</option>
+                    <option>Druid</option>
+                  </select>
+                </div>
               </div>
               <div class="field">
                 <label for="character-role">Rola</label>
-                <select id="character-role" name="role" required>
+                <select id="character-role" name="rola" required>
                   <option value="">Wybierz rolę</option>
                   <option>Tank</option>
                   <option>Healer</option>
                   <option>DPS</option>
                 </select>
               </div>
-              <div class="field">
-                <label for="character-profession">Profesja</label>
-                <input id="character-profession" name="profession" type="text" maxlength="60" placeholder="np. Kowalstwo">
+              <div class="profession-fields">
+                <div class="field">
+                  <label for="character-profession-1">Profesja 1</label>
+                  <input id="character-profession-1" name="profesja_1" type="text" maxlength="60" placeholder="np. Kowalstwo">
+                </div>
+                <div class="field">
+                  <label for="profession-level-1">Poziom profesji 1</label>
+                  <input id="profession-level-1" class="profession-level" name="poziom_profesji_1" type="number" min="0" max="600" step="1" value="0" required>
+                </div>
+              </div>
+              <div class="profession-fields">
+                <div class="field">
+                  <label for="character-profession-2">Profesja 2</label>
+                  <input id="character-profession-2" name="profesja_2" type="text" maxlength="60" placeholder="np. Górnictwo">
+                </div>
+                <div class="field">
+                  <label for="profession-level-2">Poziom profesji 2</label>
+                  <input id="profession-level-2" class="profession-level" name="poziom_profesji_2" type="number" min="0" max="600" step="1" value="0" required>
+                </div>
               </div>
               <div class="form-actions">
                 <button class="button button--primary" type="submit">Zapisz kartę postaci</button>
@@ -192,7 +211,7 @@
                       <th scope="col">Rasa</th>
                       <th scope="col">Klasa</th>
                       <th scope="col">Rola</th>
-                      <th scope="col">Profesja</th>
+                      <th scope="col">Profesje</th>
                     </tr>
                   </thead>
                   <tbody id="roster-list" aria-live="polite"></tbody>

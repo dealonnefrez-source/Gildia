@@ -1,10 +1,13 @@
 create table public.profiles (
   user_id uuid primary key references auth.users (id) on delete cascade,
-  character_name text not null check (char_length(character_name) between 1 and 40),
-  race text not null check (race in ('Ork', 'Undead', 'Tauren', 'Troll', 'Skyelf')),
-  character_class text not null check (character_class in ('Warrior', 'Hunter', 'Mage', 'Warlock', 'Shamman', 'Priest', 'Paladin', 'Rodue', 'Druid')),
-  role text not null default 'DPS' check (role in ('Tank', 'Healer', 'DPS')),
-  profession text not null default '' check (char_length(profession) <= 60),
+  imie text not null check (char_length(imie) between 1 and 40),
+  rasa text not null check (rasa in ('Ork', 'Undead', 'Tauren', 'Troll', 'Skyelf')),
+  klasa text not null check (klasa in ('Warrior', 'Hunter', 'Mage', 'Warlock', 'Shaman', 'Priest', 'Paladin', 'Rogue', 'Druid')),
+  rola text not null default 'DPS' check (rola in ('Tank', 'Healer', 'DPS')),
+  profesja_1 text not null default '' check (char_length(profesja_1) <= 60),
+  poziom_profesji_1 integer not null default 0 check (poziom_profesji_1 between 0 and 600),
+  profesja_2 text not null default '' check (char_length(profesja_2) <= 60),
+  poziom_profesji_2 integer not null default 0 check (poziom_profesji_2 between 0 and 600),
   updated_at timestamptz not null default now()
 );
 

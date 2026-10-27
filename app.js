@@ -11,6 +11,20 @@ const authModeToggle = document.querySelector("#auth-mode-toggle");
 const authSwitchLabel = document.querySelector("#auth-switch-label");
 const profileForm = document.querySelector("#profile-form");
 const profileMessage = document.querySelector("#profile-message");
+const characterClassSelect = document.querySelector("#character-class");
+const characterClassIcon = document.querySelector("#character-class-icon");
+const CLASS_ICONS = new Map([
+  ["Warrior", "icon_class/warriorhd.png"],
+  ["Hunter", "icon_class/hunterhd.png"],
+  ["Mage", "icon_class/magehd.png"],
+  ["Warlock", "icon_class/warlockhd.png"],
+  ["Shaman", "icon_class/shamanhd.png"],
+  ["Priest", "icon_class/priesthd.png"],
+  ["Paladin", "icon_class/paladinhd.png"],
+  ["Rogue", "icon_class/roguehd.png"],
+  ["Druid", "icon_class/druidhd.png"],
+]);
+const PROFILE_FIELDS = "imie, rasa, klasa, rola, profesja_1, poziom_profesji_1, profesja_2, poziom_profesji_2";
 const rosterList = document.querySelector("#roster-list");
 const rosterMessage = document.querySelector("#roster-message");
 const eventForm = document.querySelector("#event-form");
@@ -41,6 +55,11 @@ function setMessage(element, message, kind = "") {
 }
 
 function setAuthenticatedView(user) {
+  if (currentUser?.id !== user?.id) {
+    profileForm.reset();
+    updateClassIcon();
+    setMessage(profileMessage, "");
+  }
   currentUser = user ?? undefined;
   authScreen.classList.toggle("is-hidden", Boolean(user));
   appShell.classList.toggle("is-hidden", !user);
@@ -66,7 +85,7 @@ async function loadProfile() {
 
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("character_name, race, character_class, role, profession")
+    .select(PROFILE_FIELDS)
     .eq("user_id", currentUser.id)
     .maybeSingle();
 
@@ -75,23 +94,61 @@ async function loadProfile() {
     return;
   }
 
-  profileForm.elements.character_name.value = data?.character_name ?? "";
-  profileForm.elements.race.value = data?.race ?? "";
-  profileForm.elements.character_class.value = data?.character_class ?? "";
-  profileForm.elements.role.value = data?.role ?? "";
-  profileForm.elements.profession.value = data?.profession ?? "";
+  profileForm.elements.imie.value = data?.imie ?? "";
+  profileForm.elements.rasa.value = data?.rasa ?? "";
+  profileForm.elements.klasa.value = data?.klasa ?? "";
+  profileForm.elements.rola.value = data?.rola ?? "";
+  profileForm.elements.profesja_1.value = data?.profesja_1 ?? "";
+  profileForm.elements.poziom_profesji_1.value = data?.poziom_profesji_1 ?? 0;
+  profileForm.elements.profesja_2.value = data?.profesja_2 ?? "";
+  profileForm.elements.poziom_profesji_2.value = data?.poziom_profesji_2 ?? 0;
+  updateClassIcon();
   setMessage(profileMessage, "");
+}
+
+function updateClassIcon() {
+  const source = CLASS_ICONS.get(characterClassSelect.value);
+  characterClassIcon.hidden = !source;
+  if (source) {
+    characterClassIcon.src = source;
+  } else {
+    characterClassIcon.removeAttribute("src");
+  }
+}
+
+function formatProfessions(profile) {
+  return [
+    [profile.profesja_1, profile.poziom_profesji_1],
+    [profile.profesja_2, profile.poziom_profesji_2],
+  ]
+    .filter(([name]) => name?.trim())
+    .map(([name, level]) => `${name} (${level ?? 0})`)
+    .join(" / ");
 }
 
 function createRosterRow(profile) {
   const row = document.createElement("tr");
   row.className = "roster-row";
 
-  [profile.character_name, profile.race, profile.character_class, profile.role, profile.profession]
+  [profile.imie, profile.rasa, profile.klasa, profile.rola, formatProfessions(profile)]
     .forEach((value, index) => {
       const cell = document.createElement("td");
       if (index === 0) cell.className = "roster-row__name";
       cell.textContent = value || "—";
+      if (index === 2) {
+        const source = CLASS_ICONS.get(profile.klasa);
+        if (source) {
+          const icon = document.createElement("img");
+          icon.className = "class-icon";
+          icon.src = source;
+          icon.alt = "";
+          icon.setAttribute("aria-hidden", "true");
+          const classLabel = document.createElement("span");
+          classLabel.className = "roster-class";
+          classLabel.append(icon, document.createTextNode(value));
+          cell.replaceChildren(classLabel);
+        }
+      }
       row.append(cell);
     });
 
@@ -104,8 +161,8 @@ async function loadRoster() {
   setMessage(rosterMessage, "Wczytywanie członków gildii...");
   const { data, error } = await supabaseClient
     .from("profiles")
-    .select("user_id, character_name, race, character_class, role, profession")
-    .order("character_name", { ascending: true });
+    .select(`user_id, ${PROFILE_FIELDS}`)
+    .order("imie", { ascending: true });
 
   if (error) {
     setMessage(rosterMessage, `Nie udało się pobrać członków gildii: ${error.message}`, "error");
@@ -343,7 +400,7 @@ async function loadEvents() {
     // Pobierz nazwy postaci zapisanych graczy; identyfikator pozostaje awaryjną etykietą.
     const { data: profiles, error: profilesError } = await supabaseClient
       .from("profiles")
-      .select("user_id, character_name, character_class, role")
+      .select("user_id, character_name:imie, character_class:klasa, role:rola")
       .in("user_id", userIds);
 
     if (profilesError) {
@@ -493,18 +550,35 @@ authForm.addEventListener("submit", async (event) => {
   setMessage(authMessage, "Logowanie zakończone powodzeniem.", "success");
 });
 
+characterClassSelect.addEventListener("change", updateClassIcon);
+
 profileForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!currentUser) return;
 
   const formData = new FormData(profileForm);
+  const imie = formData.get("imie").trim();
+  const poziomProfesji1 = Number(formData.get("poziom_profesji_1"));
+  const poziomProfesji2 = Number(formData.get("poziom_profesji_2"));
+  if (!profileForm.reportValidity()) return;
+  if (!imie) {
+    setMessage(profileMessage, "Podaj imię postaci.", "error");
+    return;
+  }
+  if (![poziomProfesji1, poziomProfesji2].every((level) => Number.isInteger(level) && level >= 0 && level <= 600)) {
+    setMessage(profileMessage, "Poziomy profesji muszą być liczbami całkowitymi od 0 do 600.", "error");
+    return;
+  }
   const { error } = await supabaseClient.from("profiles").upsert({
     user_id: currentUser.id,
-    character_name: formData.get("character_name").trim(),
-    race: formData.get("race"),
-    character_class: formData.get("character_class"),
-    role: formData.get("role"),
-    profession: formData.get("profession").trim(),
+    imie,
+    rasa: formData.get("rasa"),
+    klasa: formData.get("klasa"),
+    rola: formData.get("rola"),
+    profesja_1: formData.get("profesja_1").trim(),
+    poziom_profesji_1: poziomProfesji1,
+    profesja_2: formData.get("profesja_2").trim(),
+    poziom_profesji_2: poziomProfesji2,
   });
 
   if (error) {
