@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#11100f">
   <meta name="description" content="Portal gildii Hordy — karta postaci, informacje i kalendarz wydarzeń.">
-  <title>Żelazny Pakt — Gildia Hordy</title>
+  <title>Nazwa Gildii — Gildia Hordy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -16,8 +16,8 @@
 <body>
   <main id="auth-screen" class="auth-screen">
     <section class="auth-card" aria-labelledby="auth-title">
-      <a class="brand brand--auth" href="#" aria-label="Żelazny Pakt">
-        <span class="brand__crest" aria-hidden="true">ŻP</span>
+      <a class="brand brand--auth" href="#" aria-label="Nazwa Gildii">
+        <img class="brand__crest" src="logo.png" alt="" aria-hidden="true">
         <span class="brand__name">Nazwa Gildii</span>
         <span class="brand__subtitle">Gildia Hordy</span>
       </a>
@@ -40,9 +40,9 @@
 
   <div id="app-shell" class="app-shell is-hidden">
     <aside class="sidebar">
-      <a class="brand" href="#" aria-label="Żelazny Pakt — strona główna">
-        <span class="brand__crest" aria-hidden="true">ŻP</span>
-        <span class="brand__name">Nazwa Gildii/span>
+      <a class="brand" href="#" aria-label="Nazwa Gildii — strona główna">
+        <img class="brand__crest" src="logo.png" alt="" aria-hidden="true">
+        <span class="brand__name">Nazwa Gildii</span>
         <span class="brand__subtitle">Gildia Hordy</span>
       </a>
 
@@ -58,6 +58,9 @@
           <span aria-hidden="true">◷</span> Kalendarz
         </button>
         <p class="nav-heading nav-heading--spaced">ZAKŁADKI</p>
+        <button class="nav-link" type="button" data-view="stream-view">
+          <span aria-hidden="true">▶</span> Stream
+        </button>
         <div class="sidebar-note">
           <span class="sidebar-note__dot" aria-hidden="true"></span>
           <span>For the Horde!</span>
@@ -82,11 +85,11 @@
       <main class="content">
         <section class="hero" aria-labelledby="guild-title">
           <div class="hero__content">
-            <p class="eyebrow">Krew. Honor. Braterstwo.</p>
-            <h1 id="guild-title">Żelazny Pakt</h1>
-            <p class="hero__description">Razem walczymy. Razem zwyciężamy.</p>
+            <p class="eyebrow">Krew. Honor. Trololol.</p>
+            <h1 id="guild-title">Nazwa Gildii</h1>
+            <p class="hero__description">Jakis epicki tekst.</p>
           </div>
-          <div class="hero__emblem" aria-hidden="true">ŻP</div>
+          <img class="hero__emblem" src="logo.png" alt="" aria-hidden="true">
         </section>
 
         <aside class="announcement" aria-label="Ważne ogłoszenie">
@@ -138,6 +141,15 @@
                 </select>
               </div>
               <div class="field">
+                <label for="character-role">Rola</label>
+                <select id="character-role" name="role" required>
+                  <option value="">Wybierz rolę</option>
+                  <option>Tank</option>
+                  <option>Healer</option>
+                  <option>DPS</option>
+                </select>
+              </div>
+              <div class="field">
                 <label for="character-profession">Profesja</label>
                 <input id="character-profession" name="profession" type="text" maxlength="60" placeholder="np. Kowalstwo">
               </div>
@@ -158,7 +170,7 @@
           </div>
           <article class="panel info-copy">
             <h3>Braterstwo ponad wszystko</h3>
-            <p>Żelazny Pakt to gildia Hordy zbudowana na wzajemnym szacunku, współpracy i dobrej zabawie. Każdy członek gildii ma prawo do głosu i może liczyć na wsparcie pozostałych.</p>
+            <p>Nazwa Gildii to gildia Hordy zbudowana na wzajemnym szacunku, współpracy i dobrej zabawie. Każdy członek gildii ma prawo do głosu i może liczyć na wsparcie pozostałych.</p>
             <h3>Zasady gildii</h3>
             <ul>
               <li>Szanuj innych graczy — niezależnie od ich doświadczenia i roli.</li>
@@ -166,6 +178,14 @@
               <li>Informuj gildię o swojej obecności i zapisuj się na wydarzenia w kalendarzu.</li>
               <li>Pomagaj członkom gildii i wspólnie buduj przyjazną społeczność.</li>
             </ul>
+            <section class="roster-section" aria-labelledby="roster-title">
+              <div class="events-heading">
+                <h3 id="roster-title">Członkowie gildii</h3>
+                <button id="refresh-roster" class="button button--secondary" type="button">Odśwież</button>
+              </div>
+              <p id="roster-message" class="notice" role="status" aria-live="polite"></p>
+              <div id="roster-list" class="roster-list" aria-live="polite"></div>
+            </section>
           </article>
         </section>
 
@@ -176,6 +196,29 @@
               <h2 id="calendar-title">Kalendarz gildii</h2>
             </div>
           </div>
+          <div class="calendar-toolbar">
+            <div class="calendar-month">
+              <button id="calendar-prev" class="button button--secondary calendar-arrow" type="button" aria-label="Poprzedni miesiąc">‹</button>
+              <h3 id="calendar-month-label" aria-live="polite"></h3>
+              <button id="calendar-next" class="button button--secondary calendar-arrow" type="button" aria-label="Następny miesiąc">›</button>
+            </div>
+            <button id="refresh-events" class="button button--secondary" type="button">Odśwież</button>
+          </div>
+          <p id="calendar-message" class="notice" role="status" aria-live="polite"></p>
+          <div class="calendar-panel">
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>Pon</span><span>Wt</span><span>Śr</span><span>Czw</span><span>Pt</span><span>Sob</span><span>Nd</span>
+            </div>
+            <div id="calendar-days" class="calendar-days" aria-label="Dni miesiąca"></div>
+          </div>
+
+          <section class="day-events-section" aria-labelledby="selected-day-title">
+            <div class="events-heading">
+              <h3 id="selected-day-title">Wydarzenia w wybranym dniu</h3>
+            </div>
+            <div id="events-list" class="events-list" aria-live="polite"></div>
+          </section>
+
           <div class="panel calendar-create">
             <h3>Dodaj wydarzenie</h3>
             <form id="event-form" class="form-grid">
@@ -192,21 +235,18 @@
                 <textarea id="event-description" name="description" rows="3" maxlength="1000" placeholder="Szczegóły wydarzenia (opcjonalnie)"></textarea>
               </div>
               <div class="form-actions">
-                <button class="button button--primary" type="submit">Dodaj do kalendarza</button>
+                <button id="event-submit" class="button button--primary" type="submit">Dodaj do kalendarza</button>
+                <button id="event-cancel-edit" class="button button--secondary" type="button" hidden>Anuluj edycję</button>
                 <p id="event-message" class="notice" role="status" aria-live="polite"></p>
               </div>
             </form>
           </div>
-          <div class="events-heading">
-            <h3>Nadchodzące wydarzenia</h3>
-            <button id="refresh-events" class="button button--secondary" type="button">Odśwież</button>
-          </div>
-          <p id="calendar-message" class="notice" role="status" aria-live="polite"></p>
-          <div id="events-list" class="events-list" aria-live="polite"></div>
         </section>
+
+        <section id="stream-view" class="view" aria-label="Stream" hidden></section>
       </main>
 
-      <footer class="footer">Żelazny Pakt <span aria-hidden="true">•</span> Siła tkwi w jedności.</footer>
+      <footer class="footer">Nazwa Gildii  <span aria-hidden="true">•</span> Mądry tekst. </footer>
     </div>
   </div>
 </body>

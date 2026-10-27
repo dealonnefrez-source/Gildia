@@ -3,6 +3,7 @@ create table public.profiles (
   character_name text not null check (char_length(character_name) between 1 and 40),
   race text not null check (race in ('Ork', 'Undead', 'Tauren', 'Troll', 'Skyelf')),
   character_class text not null check (character_class in ('Warrior', 'Hunter', 'Mage', 'Warlock', 'Shamman', 'Priest', 'Paladin', 'Rodue', 'Druid')),
+  role text not null default 'DPS' check (role in ('Tank', 'Healer', 'DPS')),
   profession text not null default '' check (char_length(profession) <= 60),
   updated_at timestamptz not null default now()
 );
