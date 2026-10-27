@@ -273,12 +273,15 @@
             </template>
           </section>
 
-          <div class="panel calendar-create">
-            <h3>Dodaj wydarzenie</h3>
+          <dialog id="event-modal" class="event-modal" aria-labelledby="event-modal-title">
+            <div class="event-modal__heading">
+              <h3 id="event-modal-title">Dodaj wydarzenie</h3>
+              <button id="event-modal-close" class="button button--secondary" type="button" aria-label="Zamknij okno wydarzenia">X</button>
+            </div>
             <form id="event-form" class="form-grid">
               <div class="field field--wide">
                 <label for="event-title">Tytuł wydarzenia</label>
-                <input id="event-title" name="title" type="text" maxlength="100" required placeholder="np. Wieczór rajdowy">
+                <input id="event-title" name="title" type="text" maxlength="100" required placeholder="np. Wieczór rajdowy" autofocus>
               </div>
               <div class="field">
                 <label for="event-date">Data i godzina</label>
@@ -294,7 +297,7 @@
                 <p id="event-message" class="notice" role="status" aria-live="polite"></p>
               </div>
             </form>
-          </div>
+          </dialog>
         </section>
 
         <section id="stream-view" class="view" aria-label="Stream" hidden></section>

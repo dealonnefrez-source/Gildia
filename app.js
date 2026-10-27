@@ -31,6 +31,9 @@ const eventForm = document.querySelector("#event-form");
 const eventMessage = document.querySelector("#event-message");
 const eventSubmit = document.querySelector("#event-submit");
 const eventCancelEdit = document.querySelector("#event-cancel-edit");
+const eventModal = document.querySelector("#event-modal");
+const eventModalTitle = document.querySelector("#event-modal-title");
+const eventModalClose = document.querySelector("#event-modal-close");
 const calendarMessage = document.querySelector("#calendar-message");
 const eventsList = document.querySelector("#events-list");
 const calendarDays = document.querySelector("#calendar-days");
@@ -214,18 +217,21 @@ function renderCalendar() {
     const date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + index);
     const dateKey = getLocalDateKey(date);
     const dayEvents = getEventsForDate(date);
+    const dayCell = document.createElement("div");
+    dayCell.className = "calendar-day";
+    dayCell.dataset.date = dateKey;
     const dayButton = document.createElement("button");
     dayButton.type = "button";
-    dayButton.className = "calendar-day";
+    dayButton.className = "calendar-day__select";
     dayButton.textContent = String(date.getDate());
     dayButton.setAttribute("aria-label", `${date.toLocaleDateString("pl-PL", { dateStyle: "full" })}${dayEvents.length ? `, wydarzeń: ${dayEvents.length}` : ""}`);
     dayButton.setAttribute("aria-pressed", String(dateKey === selectedKey));
 
-    if (date.getMonth() !== month) dayButton.classList.add("calendar-day--outside");
-    if (dateKey === todayKey) dayButton.classList.add("calendar-day--today");
-    if (dateKey === selectedKey) dayButton.classList.add("calendar-day--selected");
+    if (date.getMonth() !== month) dayCell.classList.add("calendar-day--outside");
+    if (dateKey === todayKey) dayCell.classList.add("calendar-day--today");
+    if (dateKey === selectedKey) dayCell.classList.add("calendar-day--selected");
     if (dayEvents.length) {
-      dayButton.classList.add("calendar-day--has-events");
+      dayCell.classList.add("calendar-day--has-events");
       const eventCount = document.createElement("span");
       eventCount.className = "calendar-day__count";
       eventCount.textContent = String(dayEvents.length);
@@ -240,8 +246,16 @@ function renderCalendar() {
       }
       renderCalendar();
       renderSelectedDayEvents();
+      calendarDays.querySelector(`[data-date="${dateKey}"] .calendar-day__select`).focus();
     });
-    fragment.append(dayButton);
+    const addButton = document.createElement("button");
+    addButton.type = "button";
+    addButton.className = "calendar-day__add";
+    addButton.textContent = "+";
+    addButton.setAttribute("aria-label", `Dodaj wydarzenie: ${date.toLocaleDateString("pl-PL", { dateStyle: "full" })}`);
+    addButton.addEventListener("click", () => openEventModal(date));
+    dayCell.append(dayButton, addButton);
+    fragment.append(dayCell);
   }
 
   calendarDays.replaceChildren(fragment);
@@ -417,8 +431,25 @@ function startEventEdit(event) {
   eventForm.elements.description.value = event.description ?? "";
   eventSubmit.textContent = "Zapisz zmiany";
   eventCancelEdit.hidden = false;
+  eventModalTitle.textContent = "Edytuj wydarzenie";
   setMessage(eventMessage, "Edytujesz wydarzenie. Zapisz zmiany lub anuluj edycję.");
-  eventForm.scrollIntoView({ behavior: "smooth", block: "center" });
+  showEventModal();
+}
+
+function showEventModal() {
+  eventModal.showModal();
+  document.body.classList.add("has-event-modal");
+}
+
+function openEventModal(date) {
+  if (!currentUser) return;
+  resetEventEdit();
+  eventForm.elements.starts_at.value = `${getLocalDateKey(date)}T20:00`;
+  showEventModal();
+}
+
+function closeEventModal() {
+  if (!eventSubmit.disabled) eventModal.close();
 }
 
 function toLocalDateTimeInput(value) {
@@ -432,6 +463,7 @@ function resetEventEdit() {
   eventForm.reset();
   eventSubmit.textContent = "Dodaj do kalendarza";
   eventCancelEdit.hidden = true;
+  eventModalTitle.textContent = "Dodaj wydarzenie";
   setMessage(eventMessage, "");
 }
 
@@ -614,6 +646,7 @@ eventForm.addEventListener("submit", async (event) => {
   };
   eventSubmit.disabled = true;
   eventCancelEdit.disabled = true;
+  eventModalClose.disabled = true;
 
   const result = editingEventId
     ? await supabaseClient
@@ -629,6 +662,7 @@ eventForm.addEventListener("submit", async (event) => {
 
   eventSubmit.disabled = false;
   eventCancelEdit.disabled = false;
+  eventModalClose.disabled = false;
 
   if (result.error) {
     setMessage(eventMessage, `Nie udało się ${editingEventId ? "zaktualizować" : "dodać"} wydarzenia: ${result.error.message}`, "error");
@@ -640,11 +674,14 @@ eventForm.addEventListener("submit", async (event) => {
   }
 
   const wasEditing = Boolean(editingEventId);
-  resetEventEdit();
+  closeEventModal();
   selectedCalendarDate = new Date(startsAt.getFullYear(), startsAt.getMonth(), startsAt.getDate());
   currentCalendarMonth = new Date(startsAt.getFullYear(), startsAt.getMonth(), 1);
-  setMessage(eventMessage, wasEditing ? "Wydarzenie zostało zaktualizowane." : "Wydarzenie dodane do kalendarza.", "success");
   await loadEvents();
+  if (calendarMessage.dataset.kind !== "error") {
+    setMessage(calendarMessage, wasEditing ? "Wydarzenie zostało zaktualizowane." : "Wydarzenie dodane do kalendarza.", "success");
+  }
+  calendarDays.querySelector(`[data-date="${getLocalDateKey(selectedCalendarDate)}"] .calendar-day__select`)?.focus();
 });
 
 document.querySelectorAll(".nav-link[data-view]").forEach((button) => {
@@ -655,8 +692,29 @@ document.querySelector("#refresh-roster").addEventListener("click", loadRoster);
 document.querySelector("#calendar-prev").addEventListener("click", () => changeCalendarMonth(-1));
 document.querySelector("#calendar-next").addEventListener("click", () => changeCalendarMonth(1));
 document.querySelector("#refresh-events").addEventListener("click", loadEvents);
-eventCancelEdit.addEventListener("click", resetEventEdit);
-eventCancelEdit.addEventListener("click", resetEventEdit);
+eventCancelEdit.addEventListener("click", closeEventModal);
+eventModalClose.addEventListener("click", closeEventModal);
+eventModal.addEventListener("click", (event) => {
+  if (event.target !== eventModal) return;
+  const bounds = eventModal.getBoundingClientRect();
+  if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) {
+    closeEventModal();
+  }
+});
+eventModal.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeEventModal();
+});
+eventModal.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeEventModal();
+  }
+});
+eventModal.addEventListener("close", () => {
+  document.body.classList.remove("has-event-modal");
+  resetEventEdit();
+});
 
 document.querySelector("#logout-button").addEventListener("click", async () => {
   const { error } = await supabaseClient.auth.signOut();
