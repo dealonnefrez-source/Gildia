@@ -1,5 +1,5 @@
-const SUPABASE_URL = "";
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_URL = "https://sfpdvmrxxrzonicargst.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_VTdw4aRSDAAXqVJoyLwZ_Q_Wrgo77cN";
 
 const authScreen = document.querySelector("#auth-screen");
 const appShell = document.querySelector("#app-shell");
