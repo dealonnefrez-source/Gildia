@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11100f">
+  <meta name="description" content="Portal gildii Hordy — karta postaci, informacje i kalendarz wydarzeń.">
+  <title>Żelazny Pakt — Gildia Hordy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main id="auth-screen" class="auth-screen">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <a class="brand brand--auth" href="#" aria-label="Żelazny Pakt">
+        <span class="brand__crest" aria-hidden="true">ŻP</span>
+        <span class="brand__name">Nazwa Gildii</span>
+        <span class="brand__subtitle">Gildia Hordy</span>
+      </a>
+      <h1 id="auth-title">Witaj</h1>
+      <p class="auth-intro">Zaloguj się do gildii Vruuia.</p>
+      <form id="auth-form" class="form-stack">
+        <label for="auth-email">Adres e-mail</label>
+        <input id="auth-email" name="email" type="email" autocomplete="email" required>
+        <label for="auth-password">Hasło</label>
+        <input id="auth-password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+        <button id="auth-submit" class="button button--primary" type="submit">Zaloguj się</button>
+      </form>
+      <p id="auth-message" class="notice" role="status" aria-live="polite"></p>
+      <p class="auth-switch">
+        <span id="auth-switch-label">Nie masz jeszcze konta?</span>
+        <button id="auth-mode-toggle" class="text-button" type="button">Zarejestruj się</button>
+      </p>
+    </section>
+  </main>
+
+  <div id="app-shell" class="app-shell is-hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#" aria-label="Żelazny Pakt — strona główna">
+        <span class="brand__crest" aria-hidden="true">ŻP</span>
+        <span class="brand__name">Nazwa Gildii/span>
+        <span class="brand__subtitle">Gildia Hordy</span>
+      </a>
+
+      <nav class="side-nav" aria-label="Nawigacja główna">
+        <p class="nav-heading">MENU GŁÓWNE</p>
+        <button class="nav-link is-active" type="button" data-view="profile-view" aria-current="page">
+          <span aria-hidden="true">♟</span> Karta postaci
+        </button>
+        <button class="nav-link" type="button" data-view="info-view">
+          <span aria-hidden="true">▤</span> Info o gildii
+        </button>
+        <button class="nav-link" type="button" data-view="calendar-view">
+          <span aria-hidden="true">◷</span> Kalendarz
+        </button>
+        <p class="nav-heading nav-heading--spaced">ZAKŁADKI</p>
+        <div class="sidebar-note">
+          <span class="sidebar-note__dot" aria-hidden="true"></span>
+          <span>For the Horde!</span>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span id="signed-in-email" class="user-email"></span>
+        <button id="logout-button" class="nav-link nav-link--logout" type="button">
+          <span aria-hidden="true">↪</span> Wyloguj się
+        </button>
+      </div>
+    </aside>
+
+    <div class="main-column">
+      <header class="topbar">
+        <span class="topbar__realm">KRONIKI GILDII <span aria-hidden="true">/</span> HORDA</span>
+        <p id="app-message" class="notice" role="status" aria-live="polite"></p>
+        <div class="topbar__status"><span class="status-dot" aria-hidden="true"></span> Portal gildii</div>
+      </header>
+
+      <main class="content">
+        <section class="hero" aria-labelledby="guild-title">
+          <div class="hero__content">
+            <p class="eyebrow">Krew. Honor. Braterstwo.</p>
+            <h1 id="guild-title">Żelazny Pakt</h1>
+            <p class="hero__description">Razem walczymy. Razem zwyciężamy.</p>
+          </div>
+          <div class="hero__emblem" aria-hidden="true">ŻP</div>
+        </section>
+
+        <aside class="announcement" aria-label="Ważne ogłoszenie">
+          <span class="announcement__icon" aria-hidden="true">!</span>
+          <div>
+            <h2>Głos Hordy</h2>
+            <p>Sprawdź kalendarz i zapisz się na najbliższe wydarzenie gildii.</p>
+          </div>
+        </aside>
+
+        <section id="profile-view" class="view is-active" aria-labelledby="profile-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Twoje miejsce w Hordzie</p>
+              <h2 id="profile-title">Karta postaci</h2>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="panel__intro">Uzupełnij dane swojej postaci, aby gildia wiedziała, z kim rusza do boju.</p>
+            <form id="profile-form" class="form-grid">
+              <div class="field">
+                <label for="character-name">Imię postaci</label>
+                <input id="character-name" name="character_name" type="text" maxlength="40" required>
+              </div>
+              <div class="field">
+                <label for="character-race">Rasa</label>
+                <select id="character-race" name="race" required>
+                  <option value="">Wybierz rasę</option>
+                  <option>Ork</option>
+                  <option>Undead</option>
+                  <option>Tauren</option>
+                  <option>Troll</option>
+                  <option>Skyelf</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="character-class">Klasa</label>
+                <select id="character-class" name="character_class" required>
+                  <option value="">Wybierz klasę</option>
+                  <option>Warrior</option>
+                  <option>Hunter</option>
+                  <option>Mage</option>
+                  <option>Warlock</option>
+                  <option>Shamman</option>
+                  <option>Priest</option>
+                  <option>Paladin</option>
+                  <option>Rodue</option>
+                  <option>Druid</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="character-profession">Profesja</label>
+                <input id="character-profession" name="profession" type="text" maxlength="60" placeholder="np. Kowalstwo">
+              </div>
+              <div class="form-actions">
+                <button class="button button--primary" type="submit">Zapisz kartę postaci</button>
+                <p id="profile-message" class="notice" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="info-view" class="view" aria-labelledby="info-title" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Nasze zasady i historia</p>
+              <h2 id="info-title">Info o gildii</h2>
+            </div>
+          </div>
+          <article class="panel info-copy">
+            <h3>Braterstwo ponad wszystko</h3>
+            <p>Żelazny Pakt to gildia Hordy zbudowana na wzajemnym szacunku, współpracy i dobrej zabawie. Każdy członek gildii ma prawo do głosu i może liczyć na wsparcie pozostałych.</p>
+            <h3>Zasady gildii</h3>
+            <ul>
+              <li>Szanuj innych graczy — niezależnie od ich doświadczenia i roli.</li>
+              <li>Podczas wspólnych wydarzeń słuchaj prowadzącego i dbaj o dobrą komunikację.</li>
+              <li>Informuj gildię o swojej obecności i zapisuj się na wydarzenia w kalendarzu.</li>
+              <li>Pomagaj członkom gildii i wspólnie buduj przyjazną społeczność.</li>
+            </ul>
+          </article>
+        </section>
+
+        <section id="calendar-view" class="view" aria-labelledby="calendar-title" hidden>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Wspólne wyprawy</p>
+              <h2 id="calendar-title">Kalendarz gildii</h2>
+            </div>
+          </div>
+          <div class="panel calendar-create">
+            <h3>Dodaj wydarzenie</h3>
+            <form id="event-form" class="form-grid">
+              <div class="field field--wide">
+                <label for="event-title">Tytuł wydarzenia</label>
+                <input id="event-title" name="title" type="text" maxlength="100" required placeholder="np. Wieczór rajdowy">
+              </div>
+              <div class="field">
+                <label for="event-date">Data i godzina</label>
+                <input id="event-date" name="starts_at" type="datetime-local" required>
+              </div>
+              <div class="field field--wide">
+                <label for="event-description">Opis</label>
+                <textarea id="event-description" name="description" rows="3" maxlength="1000" placeholder="Szczegóły wydarzenia (opcjonalnie)"></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="button button--primary" type="submit">Dodaj do kalendarza</button>
+                <p id="event-message" class="notice" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+          </div>
+          <div class="events-heading">
+            <h3>Nadchodzące wydarzenia</h3>
+            <button id="refresh-events" class="button button--secondary" type="button">Odśwież</button>
+          </div>
+          <p id="calendar-message" class="notice" role="status" aria-live="polite"></p>
+          <div id="events-list" class="events-list" aria-live="polite"></div>
+        </section>
+      </main>
+
+      <footer class="footer">Żelazny Pakt <span aria-hidden="true">•</span> Siła tkwi w jedności.</footer>
+    </div>
+  </div>
+</body>
+</html>
