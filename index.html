@@ -279,13 +279,15 @@
               <button id="event-modal-close" class="button button--secondary" type="button" aria-label="Zamknij okno wydarzenia">X</button>
             </div>
             <form id="event-form" class="form-grid">
+              <input name="event_day" type="hidden">
+              <p id="event-selected-date" class="notice field--wide"></p>
               <div class="field field--wide">
                 <label for="event-title">Tytuł wydarzenia</label>
                 <input id="event-title" name="title" type="text" maxlength="100" required placeholder="np. Wieczór rajdowy" autofocus>
               </div>
               <div class="field">
-                <label for="event-date">Data i godzina</label>
-                <input id="event-date" name="starts_at" type="datetime-local" required>
+                <label for="event-time">Godzina</label>
+                <input id="event-time" name="event_time" type="time" step="60" required>
               </div>
               <div class="field field--wide">
                 <label for="event-description">Opis</label>

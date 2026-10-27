@@ -34,6 +34,7 @@ const eventCancelEdit = document.querySelector("#event-cancel-edit");
 const eventModal = document.querySelector("#event-modal");
 const eventModalTitle = document.querySelector("#event-modal-title");
 const eventModalClose = document.querySelector("#event-modal-close");
+const eventSelectedDate = document.querySelector("#event-selected-date");
 const calendarMessage = document.querySelector("#calendar-message");
 const eventsList = document.querySelector("#events-list");
 const calendarDays = document.querySelector("#calendar-days");
@@ -376,13 +377,9 @@ async function loadEvents() {
   if (!currentUser) return;
 
   setMessage(calendarMessage, "Wczytywanie wydarzeń...");
-  const cutoffTime = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const cutoff = new Date(cutoffTime);
-
   const { data, error } = await supabaseClient
     .from("events")
     .select("id, title, starts_at, description, created_by, event_signups(user_id)")
-    .gte("starts_at", cutoff.toISOString())
     .order("starts_at", { ascending: true });
 
   if (error) {
@@ -390,7 +387,7 @@ async function loadEvents() {
     return;
   }
 
-  const events = (data ?? []).filter((event) => new Date(event.starts_at).getTime() >= cutoffTime);
+  const events = data ?? [];
   const userIds = [...new Set(events.flatMap((event) => [
     event.created_by,
     ...(event.event_signups ?? []).map((signup) => signup.user_id),
@@ -427,7 +424,9 @@ function startEventEdit(event) {
 
   editingEventId = event.id;
   eventForm.elements.title.value = event.title;
-  eventForm.elements.starts_at.value = toLocalDateTimeInput(event.starts_at);
+  const localDateTime = toLocalDateTimeInput(event.starts_at);
+  setEventDay(new Date(event.starts_at));
+  eventForm.elements.event_time.value = localDateTime.slice(11, 16);
   eventForm.elements.description.value = event.description ?? "";
   eventSubmit.textContent = "Zapisz zmiany";
   eventCancelEdit.hidden = false;
@@ -444,8 +443,14 @@ function showEventModal() {
 function openEventModal(date) {
   if (!currentUser) return;
   resetEventEdit();
-  eventForm.elements.starts_at.value = `${getLocalDateKey(date)}T20:00`;
+  setEventDay(date);
+  eventForm.elements.event_time.value = "20:00";
   showEventModal();
+}
+
+function setEventDay(date) {
+  eventForm.elements.event_day.value = getLocalDateKey(date);
+  eventSelectedDate.textContent = `Dzień wydarzenia: ${date.toLocaleDateString("pl-PL", { dateStyle: "full" })}`;
 }
 
 function closeEventModal() {
@@ -461,6 +466,7 @@ function toLocalDateTimeInput(value) {
 function resetEventEdit() {
   editingEventId = null;
   eventForm.reset();
+  eventSelectedDate.textContent = "";
   eventSubmit.textContent = "Dodaj do kalendarza";
   eventCancelEdit.hidden = true;
   eventModalTitle.textContent = "Dodaj wydarzenie";
@@ -628,19 +634,42 @@ profileForm.addEventListener("submit", async (event) => {
   if (document.querySelector("#info-view").classList.contains("is-active")) loadRoster();
 });
 
+eventForm.addEventListener("invalid", (event) => {
+  const message = event.target === eventForm.elements.title
+    ? "Podaj tytuł wydarzenia."
+    : "Podaj prawidłową godzinę wydarzenia.";
+  setMessage(eventMessage, message, "error");
+}, true);
+
 eventForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!currentUser) return;
+  if (eventSubmit.disabled) return;
+  if (!currentUser) {
+    setMessage(eventMessage, "Zaloguj się, aby zapisać wydarzenie.", "error");
+    return;
+  }
 
   const formData = new FormData(eventForm);
-  const startsAt = new Date(formData.get("starts_at"));
-  if (Number.isNaN(startsAt.getTime())) {
-    setMessage(eventMessage, "Podaj prawidłową datę i godzinę wydarzenia.", "error");
+  const title = formData.get("title").trim();
+  if (!title) {
+    setMessage(eventMessage, "Podaj tytuł wydarzenia.", "error");
+    eventForm.elements.title.focus();
+    return;
+  }
+  const day = formData.get("event_day");
+  const time = formData.get("event_time");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !/^\d{2}:\d{2}$/.test(time)) {
+    setMessage(eventMessage, "Wybierz dzień w kalendarzu i podaj prawidłową godzinę.", "error");
+    return;
+  }
+  const startsAt = new Date(`${day}T${time}`);
+  if (Number.isNaN(startsAt.getTime()) || toLocalDateTimeInput(startsAt) !== `${day}T${time}`) {
+    setMessage(eventMessage, "Wybrana godzina nie istnieje w tym dniu. Wybierz inną godzinę.", "error");
     return;
   }
 
   const eventData = {
-    title: formData.get("title").trim(),
+    title,
     starts_at: startsAt.toISOString(),
     description: formData.get("description").trim() || null,
   };
